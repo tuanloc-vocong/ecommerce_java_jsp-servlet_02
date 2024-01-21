@@ -1,8 +1,14 @@
 package com.ecommerce.helper;
 
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.util.Properties;
+
+import jakarta.mail.Authenticator;
+import jakarta.mail.Message;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 
 public class Mail {
     public static void sendMail(String recipientMailId, String subject, String body){
@@ -18,7 +24,21 @@ public class Mail {
 
         Session session = Session.getInstance(properties, new Authenticator(){
             @Override
-            protected PasswordAuthentication // bhagatanirudh
-        })
+            protected PasswordAuthentication getPasswordAuthentication() {
+            	return new PasswordAuthentication(emailId, password);
+            }
+        });
+        
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(emailId));
+            message.setRecipient(Message.RecipientType.TO, new InternetAddress(recipientMailId));
+            message.setSubject(subject);
+            message.setContent(body, "text/html");
+            
+            Transport.send(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
